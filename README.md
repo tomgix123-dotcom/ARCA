@@ -52,5 +52,5 @@ The current goal is to keep reparing the mysterious code and uncover more of its
 
 ## License
 
-This project is currently not licensed.
+Arca is licensed under the MIT License.
 
