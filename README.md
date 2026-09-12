@@ -8,6 +8,8 @@ The original code was corrupted, but I have managed to repair most of it, and it
 
 It allows you to create protected folders that require a password before opening them.
 
+![Arca demonstration](arca-demo.gif)
+
 > ⚠️ Arca is currently in development and should not be considered a high-security solution.
 
 ## Features
