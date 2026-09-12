@@ -1,5 +1,5 @@
 # ARCA
-
+Currently program just in Spanish language but intuitive enough for using whiout understanding the language.
 **Arca** is a password-protected folder manager for Windows that I found on an old hard drive at a yard sale.
 
 The original code was corrupted, but I have managed to repair most of it, and it now works surprisingly well.
