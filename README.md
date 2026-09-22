@@ -15,7 +15,7 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 > ⚠️ Arca is currently in development and should not be considered a high-security solution. But still it works really well
 > for day to day use at **user level** high-security.
 
-> ⚠️ DONT LOOSE YOUR PASWORDS - Currently there is no way of changing paswords so important document may be lost if you loose the pasword to acces them, so be carefull. 
+> ⚠️ **DONT LOOSE YOUR PASWORDS** - Currently there is no way of changing paswords so important document may be lost if you loose the pasword to acces them, so be carefull. 
 
 ## Features
 
