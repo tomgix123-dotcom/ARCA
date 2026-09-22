@@ -17,9 +17,17 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 
 ## Features
 
-* 🔐 Password-protected folders
-* 🖥️ Windows desktop application
-* 🔑 Master password
+## Features
+
+- 🔐 Password-protected folders
+- 👁️ Show/hide password
+- 🗂️ Manage multiple protected folders
+- 🖥️ Native Windows desktop application
+- 💾 Portable version available
+- 🔌 Works locally without an online account
+- 🎨 Polished custom interface
+- 🐍 Written in Python
+- 📦 Windows installer available
 
 ## Requirements
 
