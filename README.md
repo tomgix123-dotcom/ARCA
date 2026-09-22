@@ -10,7 +10,10 @@ It allows you to create protected folders that require a password before opening
 
 ![Arca demonstration](arca-demo.gif)
 
-> ⚠️ Arca is currently in development and should not be considered a high-security solution.
+Protected folders remain inaccessible while locked and can only be accessed through Arca after entering the correct password.
+
+> ⚠️ Arca is currently in development and should not be considered a high-security solution. But still it works really well
+> for day to day use at **user level** high-security.
 
 ## Features
 
