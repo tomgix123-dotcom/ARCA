@@ -46,18 +46,10 @@ This makes it suitable for keeping Arca in a specific folder, on a USB drive, or
 
 ## Running from source
 
-Clone the repository:
+For developers who want to run or modify Arca directly from the source code:
 
-```bash
-git clone https://github.com/YOUR_USERNAME/Arca.git
-cd Arca
-```
-
-Then run:
-
-```bash
-python Arca_main.py
-```
+git clone https://github.com/tomgix123-dotcom/ARCA.git
+cd ARCA
 
 ## Building
 
