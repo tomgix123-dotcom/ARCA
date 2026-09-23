@@ -23,6 +23,8 @@ def crear_ventana():
     
     return ventana
 
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#===============================AREA DE INICIO===============================================================================
 def crear_P_incio(ventana):
     P_inicio= tk.Frame(ventana, bg="black")
     
@@ -35,25 +37,72 @@ def crear_P_incio(ventana):
     P_inicio_top.grid_columnconfigure(0,weight=1)
 
     P_inicio.grid_rowconfigure(0, weight=1)
-    P_inicio.grid_rowconfigure(1, weight=1)
+    P_inicio.grid_rowconfigure(1, weight=0)
+    P_inicio.grid_rowconfigure(2, weight=1)
     
-
     P_inicio_bottom=tk.Frame(P_inicio, bg="black")
     P_inicio_bottom.grid(row=1, column=0, sticky="nsew")
-    P_inicio_bottom.grid_columnconfigure(0, weight=1)
+    P_inicio_bottom.grid_columnconfigure(0, weight=178)
     P_inicio_bottom.grid_columnconfigure(1, weight=0)
-    P_inicio_bottom.grid_columnconfigure(2, weight=1)
+    P_inicio_bottom.grid_columnconfigure(2, weight=150)
+
+    P_inicio_superbot=tk.Frame(P_inicio, bg="black")
+    P_inicio_superbot.grid(row=2, column=0, sticky="nsew")
+    P_inicio_superbot.grid_columnconfigure(0, weight=1)
+    P_inicio_superbot.grid_columnconfigure(1, weight=0)
+    P_inicio_superbot.grid_columnconfigure(2, weight=1)
 
     Centro_bottom=tk.Frame(P_inicio_bottom, bg="black") 
     Centro_bottom.grid(row=0, column=1, sticky="nsew")
 
+    Centro_superbot=tk.Frame(P_inicio_superbot, bg="black")
+    Centro_superbot.grid(row=0, column=1, sticky="nsew")
+   
+
     return{"panel": P_inicio, "top":P_inicio_top, "bot":P_inicio_bottom,
-           "centro":Centro_bottom}
+           "centro":Centro_bottom,"centro_bot":Centro_superbot}
+
+#==================================
+def crear_zona_clave(parent):
+    Clave_label=tk.Label(parent, text="Clave:", bg="black", fg="orange",
+                        font=("Px437 Acer VGA 8x8", 15))
+    
+
+    Borde_Clave_Entry=crear_borde(parent,"orange", 2,2)
+    
+
+    Clave_Entry=tk.Entry(Borde_Clave_Entry, bg="black", fg="orange",
+                        font=("Px437 Acer VGA 8x8", 15), relief="flat", insertwidth=5,
+                        insertbackground="orange", borderwidth=10,justify="center")
+
+    
+    return {"label":Clave_label,"borde":Borde_Clave_Entry, "entry":Clave_Entry}
+    
+def crear_boton_ojo(parent,escala=4):
+
+    nombre_icono = "ojo"
+
+    icono= iconos.obtener_icono(nombre_icono,escala)
+    icono.imagen = icono
+
+    Boton_ojo=tk.Button(parent, bg="black",fg="orange",relief="flat", image=icono,activebackground="black")
+
+    return {"boton":Boton_ojo,"nombre_icono":nombre_icono}
+
+def cambiar_estado_ojo(Boton_ojo):
+
+    if Boton_ojo["nombre_icono"] == "ojo":
+        Boton_ojo["nombre_icono"] = "ojo_cerrado"
+    else:
+        Boton_ojo["nombre_icono"] = "ojo"
+
+    icono = iconos.obtener_icono(Boton_ojo["nombre_icono"], 4)
+    icono.imagen = icono
+
+    Boton_ojo["boton"].configure(image=icono)
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #=================================AREA DE CARPETAS====================================================================
-#{"left":P_carL,"rigth":P_carR,"bot":P_car_bot, "carpetas":P_carpetas,
-#"rigth top":P_carR_top, "rigth bot":P_carR_top,"info":frame_info}
 def crear_PCarpetas(ventana):
     P_carpetas= tk.Frame(ventana, bg="black")
 
@@ -169,7 +218,10 @@ def crear_panel_info(ubi_info):
 
     #Crea un campo de texto con su respetivo label para colocarlo todo juntito en un frame sin que el grid haga cosas raras con los dos elementos, asi siempre estan juntos.
     def crear_campo(parent,texto):
-       
+
+       Boton_ojo_carpeta= crear_boton_ojo(parent)
+       Boton_ojo_carpeta["boton"].grid(row=1,column=1)
+
        label=tk.Label(parent,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",25),text=texto)
        label.grid(row=0,column=0)
 
@@ -180,7 +232,7 @@ def crear_panel_info(ubi_info):
        entry.pack()
        borde.grid(row=1,column=0)
 
-       return entry
+       return {"entry":entry,"boton_ojo_carpeta":Boton_ojo_carpeta}
 
 
     #Crea el icono que va junto al nombre.(siempre es el mismo icono, se mantendra asi hasta que Arca funcione y luego mejorare para que cambie segun el estado de la carpeta)
@@ -203,7 +255,8 @@ def crear_panel_info(ubi_info):
     Entry= crear_campo(seccion_clave,"Clave")
     
 
-    return{"nombre":Nombre,"seccion_clave":seccion_clave,"entry_contenido":Entry,"icono":icono_carpeta,
+    return{"nombre":Nombre,"seccion_clave":seccion_clave,"entry_contenido":Entry["entry"],
+           "boton_ojo_carpeta":Entry["boton_ojo_carpeta"],"icono":icono_carpeta,
            "separador":separador}
 
 def mostrar_panel_info(panel_info):
@@ -226,7 +279,7 @@ def actulizar_panel_info(panel_info,carpeta):
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#==========================BIENVENIDO==================================    
+#==========================BIENVENIDO==================================
 def crear_bienvenido(parent):
     bienvenido=tk.Label(parent, text="-Bienvenido, seleccione una carpeta.-", bg="black", fg="orange",
                         font=("Px437 Acer VGA 8x8", 15,))
@@ -290,7 +343,7 @@ def mostrar_botones_carpeta(botones_carpeta):
         botones_carpeta["eliminar"].grid(row=0,column=2,padx=10)
         botones_carpeta["bloquear"].grid(row=0, column=3,padx=10)
 
-
+#=========================================================================================================================
 def crear_candado_carpeta(parent):
     icono=iconos.obtener_icono("bloqueado",2)
     candado_icono=tk.Label(parent,image=icono,bg="black")
@@ -305,7 +358,7 @@ def ocultar_candado(candado):
     candado.place_forget()
 
 
-
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   
 
@@ -340,9 +393,9 @@ def crear_popup(parent,color,grosor,nombre_ventana):
     superbot=tk.Frame(interior,bg="black")
     superbot.grid(row=2,column=0,sticky="news")
     
-    bot.grid_columnconfigure(0,weight=1)
+    bot.grid_columnconfigure(0,weight=25)
     bot.grid_columnconfigure(1,weight=0)
-    bot.grid_columnconfigure(2,weight=1)
+    bot.grid_columnconfigure(2,weight=15)
     superbot.grid_columnconfigure(0,weight=1)
     superbot.grid_columnconfigure(1,weight=0)
     superbot.grid_columnconfigure(2,weight=1)
@@ -477,6 +530,7 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
     
 
     def crear_campo(parent,texto):
+        
        label=tk.Label(parent,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",18),text=texto)
        label.grid(row=0,column=0)
 
@@ -487,7 +541,7 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
        entry.pack()
        borde.grid(row=1,column=0)
 
-       return entry
+       return {"entry":entry,"borde":borde}
     #============NOMBRE==========================================================================================
     seccion_nombre=tk.Frame(popup["centro"],bg="black")
     entry_nombre=crear_campo(seccion_nombre,"Nombre")
@@ -496,6 +550,8 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
     seccion_clave=tk.Frame(popup["centro"],bg="black")
     entry_clave=crear_campo(seccion_clave,"Clave")
 
+    Boton_ojo_popup= crear_boton_ojo(seccion_clave)
+    Boton_ojo_popup["boton"].grid(row=1,column=1)
     #===============BOTONES====================================================================================
     seccion_botones=tk.Frame(popup["superbot"],bg="black")
 
@@ -510,9 +566,10 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
                  relief="flat")
     Cancelar.pack()
     
-    return{"nombre":entry_nombre,"clave":entry_clave,"crear":Crear,"popup":popup["borde"],"borde_cancelar":borde_cancelar,
-           "borde_crear":borde_crear,"seccion_clave":seccion_clave,"seccion_botones":seccion_botones,
-           "seccion_nombre":seccion_nombre,"cancelar":Cancelar,"x":popup["x"],"borde":popup["borde"]}    
+    return{"nombre":entry_nombre["entry"],"clave":entry_clave["entry"],"crear":Crear,"popup":popup["borde"],
+           "borde_cancelar":borde_cancelar,"borde_crear":borde_crear,"seccion_clave":seccion_clave,
+           "seccion_botones":seccion_botones,"seccion_nombre":seccion_nombre,"cancelar":Cancelar,
+           "x":popup["x"],"borde":popup["borde"],"boton_ojo_popup":Boton_ojo_popup}    
 
 def mostrar_popup_nueva_carpeta(popup):
     popup["borde_cancelar"].grid(row=0,column=1,pady=40,padx=50)

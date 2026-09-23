@@ -25,37 +25,6 @@ pygame.mixer.init()
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #=================================FUNCIONES VARIADAS===========================================================
-def incorrect_pass():
-    Borde_Error=ui.crear_borde(P_inicio["panel"],"#604013",6,6)
-    Borde_Error.place(relx=0.5, rely=0.54,anchor="center")
-    Error=tk.Label(Borde_Error,text="Clave Incorrecta", font=("OCR-A BT",50),
-                   bg="orange", fg="black")
-    Error.pack()
-    ventana.after(1000, Borde_Error.place_forget)
-
-def get_clave(Event=None):
-    contraseña_text=Clave_Entry.get()
-    contraseña_hash=seguridad.crear_hash(contraseña_text)
-
-    if datos["clave_maestra"] == "":
-    
-        datos["clave_maestra"]=contraseña_hash
-        config.guardar_json(datos)
-        Clave_Entry.delete(0, tk.END)
-        mensaje.grid_forget()
-
-    elif seguridad.check_hash(contraseña_hash, datos["clave_maestra"]):
-        grant_acces()
-    else: incorrect_pass()
-   
-def grant_acces():
-    P_inicio["panel"].pack_forget()
-    P_carpetas["carpetas"].pack(fill="both", expand=True)
-
-def cerrar():
-    ventana.destroy()
-def minimizar():
-    ventana.iconify()
 
 def aviso_abiertas():
 
@@ -63,7 +32,7 @@ def aviso_abiertas():
     cantidad=len(abiertas)
 
     icono= iconos.obtener_icono("aviso",6)
-    aviso=tk.Label(P_inicio["centro"],text=f"AVISO HAY {cantidad} CARPETA DESBLOQUEADA", font=("Px437 Acer VGA 8x8",12),
+    aviso=tk.Label(P_inicio["centro_bot"],text=f"AVISO HAY {cantidad} CARPETA DESBLOQUEADA", font=("Px437 Acer VGA 8x8",12),
                    bg="black", fg="orange", image=icono,compound="left")
     aviso.image=icono
 
@@ -78,9 +47,9 @@ def mensaje_establecer_maestra():
 
     if datos["clave_maestra"] == "":
 
-        mensaje=tk.Label(P_inicio["centro"],text="-Establece una clave maestra para acceder-", font=("Px437 Acer VGA 8x8",12),
+        mensaje=tk.Label(P_inicio["centro_bot"],text="-Establece una clave maestra para acceder-", font=("Px437 Acer VGA 8x8",12),
                            bg="black", fg="orange")
-        mensaje.grid(row=2,column=0,pady= 30)
+        mensaje.grid(row=2,column=1,pady= 30)
 
         return mensaje       
 
@@ -90,9 +59,10 @@ def mensaje_establecer_maestra():
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Tomgix.Arca")
 ventana=ui.crear_ventana()
 ventana.title("Arca")
-ventana.iconbitmap(carpetas.obtener_ruta("Assets/ARCA.ico"))
 fonts.cargar_fuentes()
 iconos.cargar_iconos()
+almacenamiento.registrar_icono_arca()
+ventana.iconbitmap(carpetas.obtener_ruta("Assets/ARCA.ico"))
 #===================================CREAR JSON===================================================================
 config.preparar_arca()
 
@@ -113,6 +83,11 @@ P_inicio["panel"].pack(fill="both", expand=True)
 aviso_abiertas()
 mensaje=mensaje_establecer_maestra()
 #==================================BOTONES BARRA DE TAREAS========================================================
+def cerrar():
+    ventana.destroy()
+def minimizar():
+    ventana.iconify()
+
 X=tk.Button(P_inicio["top"],bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",25),relief="flat",
             padx=0,pady=0, command=cerrar)
 X.grid(row=0,column=1,sticky="ne")
@@ -127,20 +102,56 @@ Titulo=tk.Label(P_inicio["top"], text="Arca", bg="black", fg="orange",
 Titulo.place(relx=0.5, rely=0.5, anchor="center")
 
 ##=====================================CLAVE======================================================================
-Clave_label=tk.Label(P_inicio["centro"], text="Clave:", bg="black", fg="orange",
-                        font=("Px437 Acer VGA 8x8", 15))
-Clave_label.grid(row=0, column=0)
+def alternar_visibilidad_contraseña():
 
-Borde_Clave_Entry=ui.crear_borde(P_inicio["centro"],"orange", 2,2)
-Borde_Clave_Entry.grid(row=1, column=0)
+    ui.cambiar_estado_ojo(Boton_ojo)
+    if Boton_ojo["nombre_icono"] == "ojo":
+        Zona_Clave["entry"].configure(show="")
 
-Clave_Entry=tk.Entry(Borde_Clave_Entry, bg="black", fg="orange",
-                        font=("Px437 Acer VGA 8x8", 15), relief="flat", insertwidth=5,
-                        insertbackground="orange", borderwidth=10,justify="center")
-Clave_Entry.pack()
-Clave_Entry.bind("<Return>", get_clave)
+    elif Boton_ojo["nombre_icono"] == "ojo_cerrado":
+        Zona_Clave["entry"].configure(show="*")
 
-Clave_Entry.focus_set()
+Boton_ojo = ui.crear_boton_ojo(P_inicio["centro"])
+Boton_ojo["boton"].grid(row=1,column=2,padx=20)
+Boton_ojo["boton"].configure(command=alternar_visibilidad_contraseña)
+
+
+#===============================================
+Zona_Clave = ui.crear_zona_clave(P_inicio["centro"])
+Zona_Clave["label"].grid(row=0,column=1)
+Zona_Clave["borde"].grid(row=1, column=1)
+Zona_Clave["entry"].pack()
+
+def get_clave(Event=None):
+    contraseña_text=Zona_Clave["entry"].get()
+    contraseña_hash=seguridad.crear_hash(contraseña_text)
+
+    if datos["clave_maestra"] == "":
+    
+        datos["clave_maestra"]=contraseña_hash
+        config.guardar_json(datos)
+        Zona_Clave["entry"].delete(0, tk.END)
+        mensaje.grid_forget()
+
+    elif seguridad.check_hash(contraseña_hash, datos["clave_maestra"]):
+        grant_acces()
+    else: incorrect_pass()
+   
+def grant_acces():
+    P_inicio["panel"].pack_forget()
+    P_carpetas["carpetas"].pack(fill="both", expand=True)
+
+def incorrect_pass():
+    Borde_Error=ui.crear_borde(P_inicio["panel"],"#604013",6,6)
+    Borde_Error.place(relx=0.5, rely=0.54,anchor="center")
+    Error=tk.Label(Borde_Error,text="Clave Incorrecta", font=("OCR-A BT",50),
+                   bg="orange", fg="black")
+    Error.pack()
+    ventana.after(1000, Borde_Error.place_forget)
+
+Zona_Clave["entry"].bind("<Return>", get_clave)
+
+Zona_Clave["entry"].focus_set()
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +166,6 @@ bienvenido=ui.crear_bienvenido(P_carpetas["rigth top"])
 icono_aprobado=ui.crear_icono_aprobado(P_carpetas["rigth top"])
 #====================================
 
-#==================================BOTONES BARRA DE TAREAS(CARPETAS)========================================================
 
 
 
@@ -205,7 +215,17 @@ panel_info["entry_contenido"].bind("<Return>", control_acceso)
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #===================================BOTONES DE LAS CARPETAS===============================
+#==================BOTON OJO========================================================
+def alternar_visibilidad_contraseña_carpeta():
 
+    ui.cambiar_estado_ojo(panel_info["boton_ojo_carpeta"])
+    if panel_info["boton_ojo_carpeta"]["nombre_icono"] == "ojo":
+        panel_info["entry_contenido"].configure(show="")
+
+    elif panel_info["boton_ojo_carpeta"]["nombre_icono"] == "ojo_cerrado":
+        panel_info["entry_contenido"].configure(show="*")
+
+panel_info["boton_ojo_carpeta"]["boton"].configure(command=alternar_visibilidad_contraseña_carpeta)
 #===========================================
 def bloquear_carpeta(Event=None):
     almacenamiento.guardar_arca(seleccion["carpeta"])
@@ -311,10 +331,20 @@ def abrir_popup_nueva_carpeta():
         Añadir.config(state="normal")
         popup["borde"].destroy()
     
+    def alternar_visibilidad_contraseña():
+
+        ui.cambiar_estado_ojo(popup["boton_ojo_popup"])
+        if popup["boton_ojo_popup"]["nombre_icono"] == "ojo":
+            popup["clave"].configure(show="")
+
+        elif popup["boton_ojo_popup"]["nombre_icono"] == "ojo_cerrado":
+            popup["clave"].configure(show="*")
+
+
     popup["crear"].config(command=lambda:nueva_carpeta(popup))
     popup["cancelar"].config(command=cerrar)
     popup["x"].config(command=cerrar)
-    
+    popup["boton_ojo_popup"]["boton"].config(command=alternar_visibilidad_contraseña)
 
 def nueva_carpeta(popup):
     nombre=popup["nombre"].get()

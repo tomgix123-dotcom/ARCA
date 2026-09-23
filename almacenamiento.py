@@ -5,7 +5,8 @@ import config
 import shutil
 import io
 import seguridad
-
+import winreg
+import sys
 
 #====================SECCION DE ADMINISTRACION DE .ARCA===============================================
 
@@ -58,7 +59,18 @@ def eliminar_arca(carpeta):
 
     os.remove(ruta)
 
-   
+def registrar_icono_arca():
+    ruta_exe = os.path.abspath(sys.executable)
+
+    # .arca -> ArcaFile
+    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, ".arca") as clave:
+        
+        winreg.SetValueEx(clave, "", 0, winreg.REG_SZ, "ArcaFile")
+
+    # ArcaFile -> DefaultIcon
+    with winreg.CreateKey(winreg.HKEY_CURRENT_USER,r"ArcaFile\DefaultIcon") as clave:
+
+        winreg.SetValueEx(clave,"", 0, winreg.REG_SZ, f'"{ruta_exe}",1')
 #==================SECCION DE ADMINISTRACION DE CARPETA TEMP=========================================
 
 def crear_carpeta_temp(carpeta):
