@@ -1,6 +1,9 @@
 # Secretos / anomalías
 /Assets/
 
+# Assets públicos (subida manual)
+/Sin Anomalias/
+
 # Archivos locales
 Config/config.json
 Data/
