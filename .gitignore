@@ -1,0 +1,16 @@
+# Secretos / anomalías
+/Assets/
+
+# Archivos locales
+Config/config.json
+Data/
+
+# Compilaciones
+___COMPILADO__/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Builder
+__BUILDER__/
