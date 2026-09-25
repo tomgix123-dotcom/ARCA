@@ -35,7 +35,8 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 
 * Windows
 * Python 3.x (when running from source)
-* Recomended resolution 1980x1080(things may break if not, im not good whit desing yet, but i try my best)
+* Recomended resolution 1980x1080, max 125% (things may break if you use another resolution, forks that fix that are welcome, if you wanna suffer whit my code as a challenge)
+
 ## Download options
 
 ### `Arca-Setup.exe` — Installer
