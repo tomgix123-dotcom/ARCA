@@ -1,8 +1,5 @@
 # ARCA
 
-**Now Arca has Spanish and English version, feel free to add your language whit the json format you will find here:**
-* Assets/idiomas/"your-json-here"
-
 **Arca** is a password-protected folder manager for Windows that I found on an old hard drive at a yard sale.
 
 The original code was corrupted, but I have managed to repair most of it, and it now works surprisingly well.
@@ -16,9 +13,8 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 > ⚠️ Arca is currently in development and should not be considered a high-security solution. But still it works really well
 > for day to day use at **user level** high-security.
 
-> ⚠️ **DONT LOOSE YOUR PASWORDS** - Currently there is no way of changing paswords so important document may be lost if you loose the pasword to acces them, so be carefull. 
+> ⚠️ **DONT LOOSE YOUR PASWORDS** - Currently there is no way of changing paswords so important documents may be lost if you loose the pasword to acces them, so be carefull. 
 
-## Features
 
 ## Features
 
@@ -31,12 +27,16 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 - 🎨 Polished custom interface
 - 🐍 Written in Python
 - 📦 Windows installer available
+**Now Arca has Spanish and English version, feel free to add your language whit the json format you will find here:**
+- Assets/idiomas/"your-json-here"
 
 ## Requirements
 
 * Windows
 * Python 3.x (when running from source)
-* Recomended resolution 1980x1080, max 125% (things may break if you use another resolution, forks that fix that are welcome, if you wanna suffer whit my code as a challenge)
+* Recomended resolution 1980x1080, max 125% 
+>(things may break if you use another resolution)
+>(forks that fix that are welcome, if you wanna suffer whit my code as a challenge)
 
 ## Download options
 
