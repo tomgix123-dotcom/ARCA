@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+import os
 import iconos
 import config
+from config import texto
 import carpetas
 import seguridad
 import almacenamiento
@@ -34,6 +36,7 @@ def crear_P_incio(ventana):
     P_inicio_top=tk.Frame(P_inicio, bg="black")
     P_inicio_top.grid(row=0, column=0, sticky="nsew")
     P_inicio_top.grid_rowconfigure(0,weight=1)
+    P_inicio_top.grid_columnconfigure(1,weight=500)
     P_inicio_top.grid_columnconfigure(0,weight=1)
 
     P_inicio.grid_rowconfigure(0, weight=1)
@@ -62,10 +65,62 @@ def crear_P_incio(ventana):
     return{"panel": P_inicio, "top":P_inicio_top, "bot":P_inicio_bottom,
            "centro":Centro_bottom,"centro_bot":Centro_superbot}
 
-#==================================
+#===========SECCION IDIOMAS=======================
+
+def crear_boton_idioma(parent):
+    icono= iconos.obtener_icono("idioma",8)
+    icono_pulsado= iconos.obtener_icono("idioma_pulsado",8)
+
+    boton_idioma=tk.Button(parent,bg="black",fg="orange",text=texto("idioma"),font=("Px437 Acer VGA 8x8",),relief="flat",
+            padx=5,pady=10, image= icono ,compound="left",activebackground="#ffa500")
+    
+    boton_idioma.clave_idioma="idioma"
+    boton_idioma.image=icono
+
+    boton_idioma.bind("<ButtonPress-1>", lambda e: boton_idioma.config(image=icono_pulsado))
+    boton_idioma.bind("<ButtonRelease-1>", lambda e: boton_idioma.config(image=icono))
+
+    return {"boton":boton_idioma}
+
+def crear_panel_idioma(parent,funcion):
+
+    borde_idiomas= crear_borde(parent,"orange",2,2)
+    panel_idioma=tk.Frame(borde_idiomas,bg="black")
+    panel_idioma.pack()
+
+    for columna,idioma in enumerate(os.listdir(config.RUTA_IDIOMAS)):
+
+        nombre,_= os.path.splitext(idioma)
+
+        boton_idioma=tk.Button(panel_idioma,text=nombre, bg="black",fg="orange",
+                                       relief="flat", font=("Px437 Acer VGA 8x8",14),
+                                       compound="left", padx= 18, command=lambda i=nombre:funcion(i))
+        boton_idioma.grid(row=0,column=columna)
+
+    return {"panel_idiomas":borde_idiomas}
+
+def refresh_idiomas(widget):
+    #Pregunta si el widget tiene la "clave_idioma" asociada.
+    if hasattr(widget,"clave_idioma"):
+
+        print(
+            "REFRESCANDO:",
+            widget,
+            "CLAVE:",
+            widget.clave_idioma)
+        valores = getattr(widget, "valores_idioma", {})
+        widget.config(text=texto(widget.clave_idioma, **valores))
+
+    #Me da todos los "hijos" del "widget" que hemos puesto y rellama a la funcion para que le cambie el idioma.
+    for hijo in widget.winfo_children():
+        refresh_idiomas(hijo)
+
+#==========SECCION CLAVE===========================
+
 def crear_zona_clave(parent):
-    Clave_label=tk.Label(parent, text="Clave:", bg="black", fg="orange",
+    Clave_label=tk.Label(parent, text=texto("clave:"), bg="black", fg="orange",
                         font=("Px437 Acer VGA 8x8", 15))
+    Clave_label.clave_idioma="clave:"
     
 
     Borde_Clave_Entry=crear_borde(parent,"orange", 2,2)
@@ -83,9 +138,9 @@ def crear_boton_ojo(parent,escala=4):
     nombre_icono = "ojo"
 
     icono= iconos.obtener_icono(nombre_icono,escala)
-    icono.imagen = icono
 
     Boton_ojo=tk.Button(parent, bg="black",fg="orange",relief="flat", image=icono,activebackground="black")
+    Boton_ojo.imagen = icono
 
     return {"boton":Boton_ojo,"nombre_icono":nombre_icono}
 
@@ -191,7 +246,7 @@ def mostrar_carpetas(ubicacion,datos,funcion):
     for fila,carpeta in enumerate(datos["carpetas"]):
 
         if carpeta.get("sesion_recuperada",False):
-            icono=iconos.obtener_icono("aviso",6)
+            icono=iconos.obtener_icono("atencion",6)
         else:
             icono=iconos.obtener_icono("carpeta",6)
         
@@ -252,7 +307,8 @@ def crear_panel_info(ubi_info):
 
    #Crea la zona del entry.
     seccion_clave= tk.Frame(ubi_info,bg="black")
-    Entry= crear_campo(seccion_clave,"Clave")
+    Entry= crear_campo(seccion_clave,texto("clave:"))
+    Entry["entry"].clave_idioma="clave:"
     
 
     return{"nombre":Nombre,"seccion_clave":seccion_clave,"entry_contenido":Entry["entry"],
@@ -280,10 +336,17 @@ def actulizar_panel_info(panel_info,carpeta):
 
 
 #==========================BIENVENIDO==================================
-def crear_bienvenido(parent):
-    bienvenido=tk.Label(parent, text="-Bienvenido, seleccione una carpeta.-", bg="black", fg="orange",
-                        font=("Px437 Acer VGA 8x8", 15,))
-       
+def crear_bienvenido(parent,datos):
+    bienvenido=tk.Label(parent, bg="black", fg="orange",
+                        font=("Px437 Acer VGA 8x8", 12,))
+
+    if not datos["carpetas"]:
+        bienvenido.config(text=texto("bienvenido_sin_carpeta"))
+        bienvenido.clave_idioma="bienvenido_sin_carpeta"
+    else:
+        bienvenido.config(text=texto("bienvenido"))
+        bienvenido.clave_idioma="bienvenido"
+
 
     return bienvenido 
 
@@ -319,29 +382,53 @@ def crear_botones_carpeta(parent):
     frame.grid_rowconfigure(2,weight=1)
 
     frame_centro=tk.Frame(frame,bg="black")
+
+
+    borde_abrir = crear_borde(frame_centro, "orange", 2, 2)
+    boton_abrir=tk.Button(borde_abrir, bg="black",fg="orange",relief="flat", text=texto("abrir"),
+                          font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
+    boton_abrir.clave_idioma="abrir"
+    boton_abrir.pack()
+
+    borde_renombrar = crear_borde(frame_centro, "orange", 2, 2)
+    boton_renombrar=tk.Button(borde_renombrar, bg="black",fg="orange",relief="flat", text=texto("renombrar"),
+                              font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
+    boton_renombrar.clave_idioma="renombrar"
+    boton_renombrar.pack()
+
+    borde_eliminar = crear_borde(frame_centro, "orange", 2, 2)
+    boton_eliminar=tk.Button(borde_eliminar, bg="black",fg="orange",relief="flat",text=texto("eliminar"),
+                             font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
+    boton_eliminar.clave_idioma="eliminar"
+    boton_eliminar.pack()
+
+    borde_bloquear = crear_borde(frame_centro, "orange", 2, 2)
+    boton_bloquear=tk.Button(borde_bloquear, bg="black",fg="orange",relief="flat", text=texto("bloquear"),
+                          font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
+    boton_bloquear.clave_idioma="bloquear"
+    boton_bloquear.pack()
+
     
 
-    boton_abrir=tk.Button(frame_centro, bg="black",fg="orange",relief="flat", text="Abrir",
-                          font=("Px437 Acer VGA 8x8",18))
-    boton_renombrar=tk.Button(frame_centro, bg="black",fg="orange",relief="flat", text="Renombrar",
-                              font=("Px437 Acer VGA 8x8",18))
-    boton_eliminar=tk.Button(frame_centro, bg="black",fg="orange",relief="flat",text="Eliminar",
-                             font=("Px437 Acer VGA 8x8",18))
-    boton_bloquear=tk.Button(frame_centro, bg="black",fg="orange",relief="flat", text="Bloquear",
-                          font=("Px437 Acer VGA 8x8",18))
+    return {"frame":frame,"frame_centro":frame_centro,
+            
+            "borde_abrir": borde_abrir,
+            "borde_renombrar": borde_renombrar,
+            "borde_eliminar": borde_eliminar,
+            "borde_bloquear": borde_bloquear,
 
-    
-
-    return {"frame":frame,"frame_centro":frame_centro,"abrir":boton_abrir,"renombrar":boton_renombrar,"eliminar":boton_eliminar,
+            "abrir":boton_abrir,
+            "renombrar":boton_renombrar,
+            "eliminar":boton_eliminar,
             "bloquear":boton_bloquear}
 
 def mostrar_botones_carpeta(botones_carpeta):
         botones_carpeta["frame"].pack(fill="both",expand=True)
         botones_carpeta["frame_centro"].grid(row=1,column=1)
-        botones_carpeta["abrir"].grid(row=0,column=0,padx=10)
-        botones_carpeta["renombrar"].grid(row=0,column=1,padx=10)
-        botones_carpeta["eliminar"].grid(row=0,column=2,padx=10)
-        botones_carpeta["bloquear"].grid(row=0, column=3,padx=10)
+        botones_carpeta["borde_abrir"].grid(row=0,column=0,padx=10)
+        botones_carpeta["borde_renombrar"].grid(row=0,column=1,padx=10)
+        botones_carpeta["borde_eliminar"].grid(row=0,column=2,padx=10)
+        botones_carpeta["borde_bloquear"].grid(row=0, column=3,padx=10)
 
 #=========================================================================================================================
 def crear_candado_carpeta(parent):
@@ -370,7 +457,7 @@ def crear_borde(parent,color,x,y):
 
 
 #===============GENERA UNA PLANTILLA DE POPUP PARA TRABAJAR CON ELLA=======================
-def crear_popup(parent,color,grosor,nombre_ventana):
+def crear_popup(parent,color,grosor,clave_idioma=None):
     borde=tk.Frame(parent,bg=color)
 
     interior=tk.Frame(borde,bg="black")
@@ -404,8 +491,10 @@ def crear_popup(parent,color,grosor,nombre_ventana):
     centro_bot.grid(row=0,column=1,sticky="news")
     
     
-    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=nombre_ventana)
+    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=texto(clave_idioma))
     nombre.grid(row=0,column=0,sticky="w")
+    nombre.clave_idioma= clave_idioma
+    
 
 
     X=tk.Button(top,bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",15),relief="flat",
@@ -421,7 +510,7 @@ def crear_popup(parent,color,grosor,nombre_ventana):
     return{"borde":borde,"interior":interior,"top":top,"bot":bot,"centro":centro_bot,"superbot":superbot,
            "x":X}
 
-def crear_popup_mediano(parent,color,grosor,nombre_ventana):
+def crear_popup_mediano(parent,color,grosor,clave_idioma=None):
     borde=tk.Frame(parent,bg=color)
 
     interior=tk.Frame(borde,bg="black")
@@ -455,8 +544,9 @@ def crear_popup_mediano(parent,color,grosor,nombre_ventana):
     centro_bot.grid(row=0,column=1,sticky="news")
     
     
-    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=nombre_ventana)
+    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=texto(clave_idioma))
     nombre.grid(row=0,column=0,sticky="w")
+    nombre.clave_idioma=clave_idioma
 
 
     X=tk.Button(top,bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",15),relief="flat",
@@ -472,7 +562,7 @@ def crear_popup_mediano(parent,color,grosor,nombre_ventana):
     return{"borde":borde,"interior":interior,"top":top,"bot":bot,"centro":centro_bot,"superbot":superbot,
            "x":X}
 
-def crear_popup_chiquito(parent,color,grosor,nombre_ventana):
+def crear_popup_chiquito(parent,color,grosor,clave_idioma=None):
     borde=tk.Frame(parent,bg=color)
 
     interior=tk.Frame(borde,bg="black")
@@ -506,8 +596,9 @@ def crear_popup_chiquito(parent,color,grosor,nombre_ventana):
     centro_bot.grid(row=0,column=1,sticky="news")
     
     
-    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=nombre_ventana)
+    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=texto(clave_idioma))
     nombre.grid(row=0,column=0,sticky="w")
+    nombre.clave_idioma=clave_idioma
 
 
     X=tk.Button(top,bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",15),relief="flat",
@@ -525,14 +616,16 @@ def crear_popup_chiquito(parent,color,grosor,nombre_ventana):
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #===========DEFINE EL POPUP PARA CREAR NUEVAS CARPETAS=====================================
-def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
+def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana,clave_idioma=None):
     popup=crear_popup(parent,color,grosor,nombre_ventana)
     
 
-    def crear_campo(parent,texto):
+    def crear_campo(parent,texto,clave_idioma=None):
         
        label=tk.Label(parent,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",18),text=texto)
        label.grid(row=0,column=0)
+       label.clave_idioma = clave_idioma
+        
 
        borde=crear_borde(parent,"orange",2,2)
        entry=tk.Entry(borde,bg="black", fg="orange",
@@ -544,11 +637,13 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
        return {"entry":entry,"borde":borde}
     #============NOMBRE==========================================================================================
     seccion_nombre=tk.Frame(popup["centro"],bg="black")
-    entry_nombre=crear_campo(seccion_nombre,"Nombre")
+    entry_nombre=crear_campo(seccion_nombre,texto("nombre:"),"nombre:")
+    
   
     #==============CLAVE==========================================================================================
     seccion_clave=tk.Frame(popup["centro"],bg="black")
-    entry_clave=crear_campo(seccion_clave,"Clave")
+    entry_clave=crear_campo(seccion_clave,texto("clave:"),"clave:")
+    
 
     Boton_ojo_popup= crear_boton_ojo(seccion_clave)
     Boton_ojo_popup["boton"].grid(row=1,column=1)
@@ -556,14 +651,16 @@ def crear_popup_nueva_carpeta(parent,color,grosor,nombre_ventana):
     seccion_botones=tk.Frame(popup["superbot"],bg="black")
 
     borde_crear=crear_borde(seccion_botones,"orange",2,2)
-    Crear=tk.Button(borde_crear, bg="black",fg="orange",text="Crear Carpeta", font=("Px437 Acer VGA 8x8",15),
-                 relief="flat")
+    Crear=tk.Button(borde_crear, bg="black",fg="orange",text=texto("crear_carpeta"), font=("Px437 Acer VGA 8x8",15),
+                 relief="flat",activebackground="#ffa500")
+    Crear.clave_idioma="crear_carpeta"
     Crear.pack()
 
 
     borde_cancelar=crear_borde(seccion_botones,"orange",2,2)
-    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text="Cancelar", font=("Px437 Acer VGA 8x8",15),
-                 relief="flat")
+    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text=texto("cancelar"), font=("Px437 Acer VGA 8x8",15),
+                 relief="flat",activebackground="#ffa500")
+    Cancelar.clave_idioma="cancelar"
     Cancelar.pack()
     
     return{"nombre":entry_nombre["entry"],"clave":entry_clave["entry"],"crear":Crear,"popup":popup["borde"],
@@ -580,14 +677,15 @@ def mostrar_popup_nueva_carpeta(popup):
     
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #===========DEFINE EL POPUP PARA LA FUNCION DE RENOMBRAR======================================
-def popup_renombrar(parent,color,grosor,nombre_ventana):
+def popup_renombrar(parent,color,grosor,nombre_ventana,clave_idioma=None):
     popup=crear_popup_mediano(parent,color,grosor,nombre_ventana)
 
 
-    def crear_campo(parent,texto):
+    def crear_campo(parent,texto,clave_idioma=None):
     
            label=tk.Label(parent,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",18),text=texto)
            label.grid(row=0,column=0)
+           label.clave_idioma= clave_idioma
     
            borde=crear_borde(parent,"orange",2,2)
            entry=tk.Entry(borde,bg="black", fg="orange",
@@ -596,11 +694,12 @@ def popup_renombrar(parent,color,grosor,nombre_ventana):
            entry.pack()
            borde.grid(row=1,column=0)
     
-           return entry
+           return {"entry":entry}
 
     #===================SECCION DE RENOMBRAR================================================
     seccion_renombrar=tk.Frame(popup["centro"],bg="black")
-    entry_renombrar=crear_campo(seccion_renombrar,"Renombrar")
+    entry_renombrar=crear_campo(seccion_renombrar,texto("renombrar:"),"renombrar:")
+    
     
     seccion_renombrar.grid(row=1,column=0,sticky="news", pady=20)
 
@@ -609,15 +708,17 @@ def popup_renombrar(parent,color,grosor,nombre_ventana):
     seccion_botones.grid(row=0,column=1)
     
     borde_renombrar=crear_borde(seccion_botones,"orange",2,2)
-    boton_renombrar=tk.Button(borde_renombrar, bg="black",fg="orange",text="Renombrar", font=("Px437 Acer VGA 8x8",15),
-                     relief="flat")
+    boton_renombrar=tk.Button(borde_renombrar, bg="black",fg="orange",text=texto("renombrar"), font=("Px437 Acer VGA 8x8",15),
+                     relief="flat",activebackground="#ffa500")
+    boton_renombrar.clave_idioma="renombrar"
     boton_renombrar.pack()
     borde_renombrar.grid(row=0,column=0,pady=40)
     
     
     borde_cancelar=crear_borde(seccion_botones,"orange",2,2)
-    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text="Cancelar", font=("Px437 Acer VGA 8x8",15),
-                     relief="flat")
+    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text=texto("cancelar"), font=("Px437 Acer VGA 8x8",15),
+                     relief="flat",activebackground="#ffa500")
+    Cancelar.clave_idioma="cancelar"
     Cancelar.pack()
     borde_cancelar.grid(row=0,column=1,pady=40,padx=50)
 
@@ -626,23 +727,25 @@ def popup_renombrar(parent,color,grosor,nombre_ventana):
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #=============================POPUP AVISO ANTES DE ELIMINAR===============================================================
-def popup_aviso_eliminar(parent,color,grosor,nombre_ventana):
+def popup_aviso_eliminar(parent,color,grosor,nombre_ventana,clave_idioma=None):
     popup=crear_popup_chiquito(parent,color,grosor,nombre_ventana)
 
     mensaje_aviso=tk.Label(popup["centro"],bg="black",fg="orange",font=("Px437 Acer VGA 8x8",12),
-                   text="¿Seguro que desea eliminar la carpeta?",wraplength=800)
+                   text=texto("seguro_eliminar"),wraplength=800)
     mensaje_aviso.grid(row=0,column=0)
+    mensaje_aviso.clave_idioma="seguro_eliminar"
 
     borde_aceptar=crear_borde(popup["superbot"],"orange",2,2)
-    boton_aceptar=tk.Button(borde_aceptar, bg="black",fg="orange",text="Aceptar", font=("Px437 Acer VGA 8x8",12),
-                     relief="flat")
+    boton_aceptar=tk.Button(borde_aceptar, bg="black",fg="orange",text=texto("aceptar"), font=("Px437 Acer VGA 8x8",12),
+                     relief="flat",activebackground="#ffa500")
     boton_aceptar.pack()
     borde_aceptar.grid(row=0,column=0,padx=50)
 
 
     borde_cancelar=crear_borde(popup["superbot"],"orange",2,2)
-    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text="Cancelar", font=("Px437 Acer VGA 8x8",12),
-                         relief="flat")
+    Cancelar=tk.Button(borde_cancelar, bg="black",fg="orange",text=texto("cancelar"), font=("Px437 Acer VGA 8x8",12),
+                         relief="flat",activebackground="#ffa500")
+    Cancelar.clave_idioma="cancelar"
     Cancelar.pack()
     borde_cancelar.grid(row=0,column=1)
 

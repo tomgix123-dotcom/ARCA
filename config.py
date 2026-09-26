@@ -11,7 +11,9 @@ def existe_json():
     return os.path.exists(ruta_config())
    
 def crear_json():
-    datos={ "clave_maestra":"", "carpetas":[]}
+    datos={ "clave_maestra":"",
+            "carpetas":[],
+            "idioma":"Español"}
 
     
     if existe_json() is False:
@@ -25,6 +27,20 @@ def guardar_json(datos):
 def leer_json():
     with open(ruta_config(), "r") as archivo:
         return json.load(archivo)
+
+#============IDIOMAS====================================================
+idioma={}
+
+def cargar_idioma(idioma):
+    ruta = os.path.join(RUTA_IDIOMAS, f"{idioma}.json")
+
+    with open(ruta, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
+
+def texto(clave,**valores):
+    traduccion=idioma.get(clave, f"[{clave}]")
+
+    return traduccion.format(**valores)
 
 #============================CONSTRUIR RUTAS=============================================
 
@@ -41,14 +57,12 @@ if getattr(sys, "frozen", False):
 else:
     BASE = os.path.dirname(os.path.abspath(__file__))
 
-print("BASE =", BASE)
-print("EXE =", sys.executable)
-print("FILE =", __file__)
 
 RUTA_DATA= os.path.join(BASE,"Data")
 RUTA_CONFIG=os.path.join(BASE,"Config")
 RUTA_SESSIONS=os.path.join(BASE,"Sessions")
 RUTA_ASSETS=os.path.join(BASE,"Assets")
+RUTA_IDIOMAS=os.path.join(RUTA_ASSETS,"idiomas")
 
 
 

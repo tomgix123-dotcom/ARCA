@@ -13,6 +13,7 @@ import hashlib
 import json
 import hashlib
 import config
+from config import texto
 import seguridad
 import ui
 import ctypes
@@ -32,24 +33,29 @@ def aviso_abiertas():
     cantidad=len(abiertas)
 
     icono= iconos.obtener_icono("aviso",6)
-    aviso=tk.Label(P_inicio["centro_bot"],text=f"AVISO HAY {cantidad} CARPETA DESBLOQUEADA", font=("Px437 Acer VGA 8x8",12),
+    aviso=tk.Label(P_inicio["centro_bot"],text=texto("aviso_carpeta_desbloqueada",cantidad=cantidad), font=("Px437 Acer VGA 8x8",12),
                    bg="black", fg="orange", image=icono,compound="left")
+    aviso.clave_idioma="aviso_carpeta_desbloqueada"
+    aviso.valores_idioma = {"cantidad": cantidad}
     aviso.image=icono
 
     if cantidad == 1:
-        aviso.grid(row=2,column=0,pady= 30)
+        aviso.grid(row=3,column=1,pady= 30)
         
     elif cantidad > 1:
-        aviso.config(text=f"AVISO HAY {cantidad} CARPETAS DESBLOQUEADAS")
-        aviso.grid(row=2,column=0,pady= 30)
+        aviso.config(text=texto("aviso_carpetas_desbloqueadas",cantidad=cantidad))
+        aviso.grid(row=3,column=1,pady= 30)
+        aviso.clave_idioma="aviso_carpetas_desbloqueadas"
+        aviso.valores_idioma = {"cantidad": cantidad}
 
 def mensaje_establecer_maestra():
 
     if datos["clave_maestra"] == "":
 
-        mensaje=tk.Label(P_inicio["centro_bot"],text="-Establece una clave maestra para acceder-", font=("Px437 Acer VGA 8x8",12),
+        mensaje=tk.Label(P_inicio["centro_bot"],text=texto("maestra"), font=("Px437 Acer VGA 8x8",12),
                            bg="black", fg="orange")
         mensaje.grid(row=2,column=1,pady= 30)
+        mensaje.clave_idioma="maestra"
 
         return mensaje       
 
@@ -74,6 +80,8 @@ for carpeta in datos["carpetas"]:
 hash= datos["clave_maestra"]
 seleccion={}
 
+config.idioma = config.cargar_idioma(datos["idioma"])
+
 
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #=================================PANEL DE INCIO======================================================================
@@ -89,18 +97,45 @@ def minimizar():
     ventana.iconify()
 
 X=tk.Button(P_inicio["top"],bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",25),relief="flat",
-            padx=0,pady=0, command=cerrar)
-X.grid(row=0,column=1,sticky="ne")
+            padx=0,pady=0,activebackground="#6E0000" ,command=cerrar)
+X.grid(row=0,column=2,sticky="ne")
 
 Minimizar=tk.Button(P_inicio["top"],bg="black",fg="orange",text="_",font=("Px437 ACM VGA 8x16",25),relief="flat",
-            padx=0,pady=0, command=minimizar)
-Minimizar.grid(row=0,column=0,sticky="ne")
+            padx=0,pady=0,activebackground="#ffa500", command=minimizar)
+Minimizar.grid(row=0,column=1,sticky="ne")
 
+#===ELEMENTOS DE LA PAGINA===========
+def abrir_panel_idiomas():
+    
+    if panel_idiomas["panel_idiomas"].winfo_ismapped():
+        panel_idiomas["panel_idiomas"].grid_remove()
+    else:
+        panel_idiomas["panel_idiomas"].grid()
+
+def cambiar_idioma(i):
+
+    config.idioma = config.cargar_idioma(i)
+    ui.refresh_idiomas(ventana)
+
+    datos["idioma"] = i
+    config.guardar_json(datos)
+
+
+    
+
+panel_idiomas=ui.crear_panel_idioma(P_inicio["top"],cambiar_idioma)
+panel_idiomas["panel_idiomas"].grid_configure(row=0,column=1,sticky="nw",pady=11)
+panel_idiomas["panel_idiomas"].grid_remove()
+    
+
+boton_idioma=ui.crear_boton_idioma(P_inicio["top"])
+boton_idioma["boton"].grid(row=0,column=0,sticky="nw")
+boton_idioma["boton"].configure(command=abrir_panel_idiomas)
 ##====================================TITULO========================================================================
-Titulo=tk.Label(P_inicio["top"], text="Arca", bg="black", fg="orange",
+Titulo=tk.Label(P_inicio["top"], text=texto("titulo"), bg="black", fg="orange",
                  font=("Kelvinized", 100, "underline"))
 Titulo.place(relx=0.5, rely=0.5, anchor="center")
-
+Titulo.clave_idioma="titulo"
 ##=====================================CLAVE======================================================================
 def alternar_visibilidad_contraseña():
 
@@ -141,11 +176,14 @@ def grant_acces():
     P_inicio["panel"].pack_forget()
     P_carpetas["carpetas"].pack(fill="both", expand=True)
 
+    Zona_Clave["entry"].delete(0, tk.END)
+
 def incorrect_pass():
     Borde_Error=ui.crear_borde(P_inicio["panel"],"#604013",6,6)
     Borde_Error.place(relx=0.5, rely=0.54,anchor="center")
-    Error=tk.Label(Borde_Error,text="Clave Incorrecta", font=("OCR-A BT",50),
+    Error=tk.Label(Borde_Error,text=texto("clave_incorrecta"), font=("OCR-A BT",50),
                    bg="orange", fg="black")
+    Error.clave_idioma="clave_incorrecta"
     Error.pack()
     ventana.after(1000, Borde_Error.place_forget)
 
@@ -162,7 +200,7 @@ P_carpetas=ui.crear_PCarpetas(ventana)
 panel_info=ui.crear_panel_info(P_carpetas["rigth top"])
 botones_carpeta=ui.crear_botones_carpeta(P_carpetas["rigth bot"])
 candado=ui.crear_candado_carpeta(P_carpetas["rigth bot"])
-bienvenido=ui.crear_bienvenido(P_carpetas["rigth top"])
+bienvenido=ui.crear_bienvenido(P_carpetas["rigth top"],datos)
 icono_aprobado=ui.crear_icono_aprobado(P_carpetas["rigth top"])
 #====================================
 
@@ -259,7 +297,8 @@ def abrir_popup_aviso_eliminar():
     ui.destruir_popups(P_carpetas)
 
     botones_carpeta["eliminar"].config(state="disable")
-    popup=ui.popup_aviso_eliminar(P_carpetas["carpetas"],"orange",3,"Eliminar//")
+    popup=ui.popup_aviso_eliminar(P_carpetas["carpetas"],"orange",3,"popup_eliminar")
+    
 
     P_carpetas["popup"] = popup["borde"]
     P_carpetas["popup_boton"] = botones_carpeta["eliminar"]
@@ -299,7 +338,8 @@ def abrir_popup_renombrar(Event=None):
     ui.destruir_popups(P_carpetas)
 
     botones_carpeta["renombrar"].config(state="disabled")
-    popup=ui.popup_renombrar(P_carpetas["carpetas"],"orange",3,"Renombrar Carpeta//")
+    popup=ui.popup_renombrar(P_carpetas["carpetas"],"orange", 3,"popup_renombrar")
+    
 
     P_carpetas["popup"] = popup["borde"]
     P_carpetas["popup_boton"] = botones_carpeta["renombrar"]
@@ -320,7 +360,7 @@ def abrir_popup_nueva_carpeta():
 
     ui.destruir_popups(P_carpetas)
 
-    popup=ui.crear_popup_nueva_carpeta(P_carpetas["carpetas"],"orange",3,"Nueva Carpeta//")
+    popup=ui.crear_popup_nueva_carpeta(P_carpetas["carpetas"],"orange",3,"popup_nueva_carpeta")
     ui.mostrar_popup_nueva_carpeta(popup)
     Añadir.config(state="disabled")
 
@@ -362,17 +402,24 @@ Icono_añadir=iconos.obtener_icono("añadir",2)
 
 Añadir=tk.Button(P_carpetas["bot"], bg="black",fg="orange",image=Icono_añadir,
                  relief="flat",command=abrir_popup_nueva_carpeta)
-Añadir.grid(row=0,column=0)
+Añadir.grid(row=0,column=2)
 
 
 #============================BOTON SALIR DE APLICACION=========================================================================
 Icono_salir=iconos.obtener_icono("salir",2)
 Salir=tk.Button(P_carpetas["bot"], bg="black",fg="orange",image=Icono_salir,
-                 relief="flat",command=lambda:cerrar())
-Salir.grid(row=0,column=2)
+                 relief="flat",command=cerrar)
+Salir.grid(row=0,column=3)
 
-#AREA BLOQUEADA=========================================================================================
+#========================================BOTON PARA VOLVER=================================================================
+def volver():
+    P_carpetas["carpetas"].pack_forget()
+    P_inicio["panel"].pack(fill="both", expand=True)
 
+Icono_volver= iconos.obtener_icono("volver",2)
+Volver=tk.Button(P_carpetas["bot"], bg="black",fg="orange",image=Icono_volver,
+                 relief="flat",command=volver)
+Volver.grid(row=0,column=1)
 
 
 
