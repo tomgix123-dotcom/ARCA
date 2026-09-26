@@ -1,6 +1,7 @@
 # ARCA
 
-**Currently program just in Spanish language but intuitive enough for using without understanding the language.**
+**Now Arca has Spanish and English version, feel free to add your language whit the json format you will find here:**
+* Assets/idiomas/"your-json-here"
 
 **Arca** is a password-protected folder manager for Windows that I found on an old hard drive at a yard sale.
 
