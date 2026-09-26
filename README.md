@@ -27,6 +27,7 @@ Protected folders remain inaccessible while locked and can only be accessed thro
 - 🎨 Polished custom interface
 - 🐍 Written in Python
 - 📦 Windows installer available
+
 **Now Arca has Spanish and English version, feel free to add your language whit the json format you will find here:**
 - Assets/idiomas/"your-json-here"
 
