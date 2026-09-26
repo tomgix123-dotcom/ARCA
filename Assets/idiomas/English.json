@@ -1,0 +1,50 @@
+
+{
+    "titulo": "Arca",
+
+    "idioma": "Language>",
+
+    "maestra": "-Set a master password to access-",
+
+    "clave": "Password",
+    "clave:": "Password:",
+
+    "clave_incorrecta": "Incorrect Password",
+
+    "crear_carpeta": "Create Folder",
+
+    "nombre": "Name",
+    "nombre:": "Name:",
+
+    "abrir": "Open",
+
+    "renombrar": "Rename",
+    "renombrar:": "Rename:",
+
+    "eliminar": "Destroy",
+
+    "bloquear": "Block",
+
+    "bienvenido": "-Welcome, select a folder to start-",
+
+    "bienvenido_sin_carpeta": "-Welcome, use + to create a folder-",
+
+    "mensaje_maestra": "-Set a master password to access-",
+
+    "aviso_carpeta_desbloqueada": "WARNING {cantidad} FOLDER UNLOCKED",
+
+    "aviso_carpetas_desbloqueadas": "WARNING {cantidad} FOLDERS UNLOCKED",
+
+    "seguro_eliminar": "Do you want to destroy the folder?",
+
+    "aceptar": "Accept",
+
+    "cancelar": "Cancel",
+
+    "popup_eliminar": "Destroy//",
+
+    "popup_renombrar": "Rename//",
+
+    "popup_nueva_carpeta": "New Folder//"
+}
+
