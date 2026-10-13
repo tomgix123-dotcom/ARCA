@@ -10,24 +10,24 @@ def obtener_ruta(relative_path):
 
 
 #AÑADE UNA NUEVA CARPETA AL DICCIONARIO=====================================
-def añadir_carpeta(datos,nombre,clave):
+def añadir_carpeta(datos,nombre,clave,llave_config):
     carpeta= {"nombre":nombre,
               "clave":clave,
               "id":str(uuid.uuid4())}
     
     datos["carpetas"].append(carpeta)
 
-    config.guardar_json(datos)
+    config.guardar_json(datos,llave_config)
 
     return carpeta
 
 
 #ELIMINA UNA CARPETA DEL DICCIONARIO=====================================
-def quitar_carpeta(datos,carpeta):
+def quitar_carpeta(datos,carpeta,llave_config):
 
     datos["carpetas"].remove(carpeta)
     
-    config.guardar_json(datos)
+    config.guardar_json(datos,llave_config)
 
 
 

@@ -6,19 +6,30 @@ import carpetas
 
 I={}
 
-def cargar_iconos():
+
+def obtener_icono(nombre,escala=1):
+
+    icono= (nombre,escala)
+
+    # Si ya tenemos esta versión, la reutilizamos
+    if icono in I:
+        return I[icono]
+
+    # Si no, buscamos el archivo
     ruta=carpetas.obtener_ruta("Assets/iconos")
-    Iconos= os.listdir(ruta)
+    ruta_icono=os.path.join(ruta,nombre + ".png")
 
-    for icono in Iconos:
-        nombre,_= os.path.splitext(icono)
-        ruta_icono=os.path.join(ruta,icono)
-        imagen=tk.PhotoImage(file=ruta_icono)
-        I[nombre]=imagen
+    # Lo cargamos
+    imagen = tk.PhotoImage(file=ruta_icono)
 
-def obtener_icono(icono,escala=1):
+    # Aplicamos la escala
+    imagen = imagen.subsample(escala, escala)
 
-    return I[icono].subsample(escala,escala)
+    # Guardamos la imagen para futuras llamadas
+    I[icono] = imagen
+    
+
+    return imagen
 
 
 

@@ -1,5 +1,4 @@
 import hashlib
-import config
 import os
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -45,7 +44,6 @@ def cifrar_bytes(zip_bytes,llave):
     bytes_cifrados=aes.encrypt(iv,zip_bytes,None)
 
     return iv, bytes_cifrados
-
 
 
 def descifrar_bytes(datos_cifrados,iv,llave):

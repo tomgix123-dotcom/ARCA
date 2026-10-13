@@ -65,6 +65,16 @@ def crear_P_incio(ventana):
     return{"panel": P_inicio, "top":P_inicio_top, "bot":P_inicio_bottom,
            "centro":Centro_bottom,"centro_bot":Centro_superbot}
 
+def crear_aviso_abiertas(parent):
+    icono= iconos.obtener_icono("aviso",6)
+    aviso=tk.Label(parent, font=("Px437 Acer VGA 8x8",12),bg="black", fg="orange", image=icono,compound="left")
+    
+    aviso.clave_idioma= None
+    aviso.valores_idioma = None
+
+    aviso.image=icono
+
+    return aviso
 #===========SECCION IDIOMAS=======================
 
 def crear_boton_idioma(parent):
@@ -94,7 +104,8 @@ def crear_panel_idioma(parent,funcion):
 
         boton_idioma=tk.Button(panel_idioma,text=nombre, bg="black",fg="orange",
                                        relief="flat", font=("Px437 Acer VGA 8x8",14),
-                                       compound="left", padx= 18, command=lambda i=nombre:funcion(i))
+                                       compound="left", padx= 18,activebackground="orange",
+                                        command=lambda i=nombre:funcion(i))
         boton_idioma.grid(row=0,column=columna)
 
     return {"panel_idiomas":borde_idiomas}
@@ -103,12 +114,7 @@ def refresh_idiomas(widget):
     #Pregunta si el widget tiene la "clave_idioma" asociada.
     if hasattr(widget,"clave_idioma"):
 
-        print(
-            "REFRESCANDO:",
-            widget,
-            "CLAVE:",
-            widget.clave_idioma)
-        valores = getattr(widget, "valores_idioma", {})
+        valores = getattr(widget, "valores_idioma",None) or {}
         widget.config(text=texto(widget.clave_idioma, **valores))
 
     #Me da todos los "hijos" del "widget" que hemos puesto y rellama a la funcion para que le cambie el idioma.
@@ -203,7 +209,7 @@ def crear_PCarpetas(ventana):
     canvas.bind("<Enter>", entrar_canvas)
     canvas.bind("<Leave>", salir_canvas) 
 
-    Sep_Lvertical=crear_separador(P_carpetas,orientacion="v")
+    Sep_Lvertical=crear_separador("#ffa500",P_carpetas,orientacion="v")
     Sep_Lvertical.grid(row=1, column=1, sticky="ns")
 
 #======================DERECHA============================================
@@ -220,14 +226,14 @@ def crear_PCarpetas(ventana):
     P_carR_top.grid(row=0, column=0, sticky="news")
 
 #=======================SEPARADOR==================================
-    sep_Rhorizontal=crear_separador(P_carR)
+    sep_Rhorizontal=crear_separador("#ffa500",P_carR)
     sep_Rhorizontal.grid(row=1, column=0, sticky="we")
 #======================DERECHA/ABAJO====================================
     P_carR_bot=tk.Frame(P_carR, bg="black")
     P_carR_bot.grid(row=2, column=0, sticky="wesn")
 
 #====================ABAJO=========================================
-    sep_CarB=crear_separador(P_carpetas)
+    sep_CarB=crear_separador("#ffa500",P_carpetas)
     sep_CarB.grid(row=2,column=0, sticky="we", columnspan=3)
 
     P_car_bot=tk.Frame(P_carpetas, bg="black")
@@ -242,26 +248,45 @@ def crear_PCarpetas(ventana):
 
 
 #DIBUJA LAS CARPETAS EN LA "UBICACION"(FRAME) QUE LE PONGAS, USANDO LOS "DATOS" DEL DICCIONARIO. 
-def mostrar_carpetas(ubicacion,datos,funcion):
+
+botones_carpetas = {}
+barras_de_progreso = {}
+def mostrar_carpetas(ubicacion,parent_barra,datos,funcion):
+
     for fila,carpeta in enumerate(datos["carpetas"]):
 
-        if carpeta.get("sesion_recuperada",False):
+        if almacenamiento.carpeta_desbloqueada(carpeta):
             icono=iconos.obtener_icono("atencion",6)
+            icono_pulsado=iconos.obtener_icono("atencion_pulsado",6)
+
         else:
             icono=iconos.obtener_icono("carpeta",6)
-        
+            icono_pulsado=iconos.obtener_icono("carpeta_pulsado",6)
+
+        #===================================================================================
         boton_carpeta=tk.Button(ubicacion,text=carpeta["nombre"], bg="black",fg="orange",
                                relief="flat", font=("Px437 Acer VGA 8x8",16), image=icono,
-                               compound="left", padx= 18, command=lambda c=carpeta:funcion(c))
+                               compound="left", padx= 18,activebackground="orange",
+                                 command=lambda c=carpeta:funcion(c))
+        #==========================================================================================
+
+        boton_carpeta.bind("<ButtonPress-1>",lambda e, b=boton_carpeta, i=icono_pulsado: b.config(image=i))
+        boton_carpeta.bind("<ButtonRelease-1>",lambda e, b=boton_carpeta, i=icono: b.config(image=i))
+
+        barra = crear_barra_progreso(parent_barra)
+
+        botones_carpetas[carpeta["id"]] = boton_carpeta
+        barras_de_progreso[carpeta["id"]] = barra
+        
         boton_carpeta.image=icono
         boton_carpeta.grid(row=fila,column=0, padx=10, sticky="w")    
     
 #DESTRUYE TODOS LOS WIDGETS DE UN FRAME Y LLAMA A MOSTRAR_CARPETAS PARA VOLVER A DIBUJARLAS
-def refresh(ubicacion,datos,funcion):
+def refresh(ubicacion,parent_barra,datos,funcion):
     
     for widget in ubicacion.winfo_children():
         widget.destroy()
-    mostrar_carpetas(ubicacion,datos,funcion)  
+    mostrar_carpetas(ubicacion,parent_barra,datos,funcion)  
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #=================================AREA DEL PANEL INFO===============================================================
@@ -302,7 +327,7 @@ def crear_panel_info(ubi_info):
     
 
     #Crea el separador.
-    separador=crear_separador(ubi_info,linea="-")
+    separador=crear_separador("#ffa500",ubi_info,linea="-")
     
 
    #Crea la zona del entry.
@@ -340,7 +365,8 @@ def crear_bienvenido(parent,datos):
     bienvenido=tk.Label(parent, bg="black", fg="orange",
                         font=("Px437 Acer VGA 8x8", 12,))
 
-    if not datos["carpetas"]:
+
+    if not config.existe_arca():
         bienvenido.config(text=texto("bienvenido_sin_carpeta"))
         bienvenido.clave_idioma="bienvenido_sin_carpeta"
     else:
@@ -383,32 +409,35 @@ def crear_botones_carpeta(parent):
 
     frame_centro=tk.Frame(frame,bg="black")
 
-
+    #============================================================================================================
     borde_abrir = crear_borde(frame_centro, "orange", 2, 2)
     boton_abrir=tk.Button(borde_abrir, bg="black",fg="orange",relief="flat", text=texto("abrir"),
                           font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
     boton_abrir.clave_idioma="abrir"
     boton_abrir.pack()
 
+    #============================================================================================================
     borde_renombrar = crear_borde(frame_centro, "orange", 2, 2)
     boton_renombrar=tk.Button(borde_renombrar, bg="black",fg="orange",relief="flat", text=texto("renombrar"),
                               font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
     boton_renombrar.clave_idioma="renombrar"
     boton_renombrar.pack()
 
+    #============================================================================================================
     borde_eliminar = crear_borde(frame_centro, "orange", 2, 2)
     boton_eliminar=tk.Button(borde_eliminar, bg="black",fg="orange",relief="flat",text=texto("eliminar"),
                              font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
     boton_eliminar.clave_idioma="eliminar"
     boton_eliminar.pack()
 
+    #==============================================================================================================
     borde_bloquear = crear_borde(frame_centro, "orange", 2, 2)
     boton_bloquear=tk.Button(borde_bloquear, bg="black",fg="orange",relief="flat", text=texto("bloquear"),
                           font=("Px437 Acer VGA 8x8",18),activebackground="#ffa500")
     boton_bloquear.clave_idioma="bloquear"
     boton_bloquear.pack()
 
-    
+    #==============================================================================================================
 
     return {"frame":frame,"frame_centro":frame_centro,
             
@@ -429,6 +458,51 @@ def mostrar_botones_carpeta(botones_carpeta):
         botones_carpeta["borde_renombrar"].grid(row=0,column=1,padx=10)
         botones_carpeta["borde_eliminar"].grid(row=0,column=2,padx=10)
         botones_carpeta["borde_bloquear"].grid(row=0, column=3,padx=10)
+
+def ocultar_botones_carpeta(botones_carpeta):
+    botones_carpeta["frame"].pack_forget()
+    botones_carpeta["frame_centro"].grid_forget()
+    botones_carpeta["borde_abrir"].grid_forget()
+    botones_carpeta["borde_renombrar"].grid_forget()
+    botones_carpeta["borde_eliminar"].grid_forget()
+    botones_carpeta["borde_bloquear"].grid_forget()
+
+
+def actulizar_progreso(barra,progreso):
+
+    progreso = int(progreso)
+
+    ancho = 500 * progreso / 100
+    barra["barra_progreso"].coords("progreso",0,0,ancho,50)
+    barra["numero"].set(f"{progreso}%")
+
+def crear_barra_progreso(parent_barra):
+
+    borde = crear_borde(parent_barra,"#ffa500",4,4)
+
+    barra = tk.Canvas(borde,width=500,height=50,bg="black",highlightthickness=0)
+
+    barra.create_rectangle(0,0,0,50,fill="#ffa500",outline="black",width=8,tags="progreso")
+
+    barra.pack()
+
+    numero = tk.StringVar(value=f"{0}%")
+
+    porcentaje = tk.Label(parent_barra,textvariable=numero,font=("Px437 Acer VGA 8x8",18),bg="black",fg="#ffa500")
+
+    return {"borde":borde,"barra_progreso":barra,"numero":numero,"porcentaje":porcentaje}
+
+def mostrar_barra_progreso(barra_progreso):
+
+    barra_progreso["borde"].place(relx=0.5,rely=0.6,anchor="center")
+    barra_progreso["porcentaje"].place(relx=0.5,rely=0.25,anchor="center")
+
+    #barra_progreso["borde"].place(relx=0.5,rely=0.5,anchor="center")
+
+def ocultar_barra_progreso(barra_progreso):
+
+    barra_progreso["borde"].place_forget()
+    barra_progreso["porcentaje"].place_forget()
 
 #=========================================================================================================================
 def crear_candado_carpeta(parent):
@@ -501,7 +575,7 @@ def crear_popup(parent,color,grosor,clave_idioma=None):
             padx=0,pady=0)
     X.grid(row=0,column=1,sticky="en")
 
-    separador=crear_separador(top)
+    separador=crear_separador("orange",top)
     separador.grid(row=1,column=0,sticky="ew",columnspan=2)
 
 
@@ -553,7 +627,7 @@ def crear_popup_mediano(parent,color,grosor,clave_idioma=None):
             padx=0,pady=0)
     X.grid(row=0,column=1,sticky="en")
 
-    separador=crear_separador(top)
+    separador=crear_separador("orange",top)
     separador.grid(row=1,column=0,sticky="ew",columnspan=2)
 
 
@@ -596,16 +670,16 @@ def crear_popup_chiquito(parent,color,grosor,clave_idioma=None):
     centro_bot.grid(row=0,column=1,sticky="news")
     
     
-    nombre=tk.Label(top,bg="black",fg="orange",font=("Px437 Acer VGA 8x8",10),text=texto(clave_idioma))
+    nombre=tk.Label(top,bg="black",fg=color,font=("Px437 Acer VGA 8x8",10),text=texto(clave_idioma))
     nombre.grid(row=0,column=0,sticky="w")
     nombre.clave_idioma=clave_idioma
 
 
-    X=tk.Button(top,bg="black",fg="orange",text="x",font=("Px437 ACM VGA 8x16",15),relief="flat",
+    X=tk.Button(top,bg="black",fg=color,text="x",font=("Px437 ACM VGA 8x16",15),relief="flat",
             padx=0,pady=0)
     X.grid(row=0,column=1,sticky="en")
 
-    separador=crear_separador(top)
+    separador=crear_separador(color,top)
     separador.grid(row=1,column=0,sticky="ew",columnspan=2)
 
 
@@ -722,7 +796,7 @@ def popup_renombrar(parent,color,grosor,nombre_ventana,clave_idioma=None):
     Cancelar.pack()
     borde_cancelar.grid(row=0,column=1,pady=40,padx=50)
 
-    return {"boton_renombrar":boton_renombrar,"cancelar":Cancelar,"nuevo_nombre":entry_renombrar,"borde":popup["borde"],
+    return {"boton_renombrar":boton_renombrar,"cancelar":Cancelar,"nuevo_nombre":entry_renombrar["entry"],"borde":popup["borde"],
             "x":popup["x"]}
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -751,15 +825,45 @@ def popup_aviso_eliminar(parent,color,grosor,nombre_ventana,clave_idioma=None):
 
     return{"boton_aceptar":boton_aceptar,"borde":popup["borde"],"cancelar":Cancelar,"x":popup["x"]}
 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#=============================POPUP AVISO BLOQUEO EN CURSO===============================================================
+def popup_aviso_bloqueo_en_curso(parent,color,grosor,clave_idioma):
+
+    popup = crear_popup_chiquito(parent,color,grosor,clave_idioma)
+
+    mensaje_aviso=tk.Label(popup["centro"],bg="black",fg="#ffa500",font=("Px437 Acer VGA 8x8",11),
+                       text=texto("aviso_bloqueo_en_curso"),wraplength=650)
+    mensaje_aviso.grid(row=0,column=0)
+    mensaje_aviso.clave_idioma="aviso_bloqueo_en_curso"
+    
+    borde_aceptar=crear_borde(popup["superbot"],"#ffa500",2,2)
+    boton_aceptar=tk.Button(borde_aceptar, bg="black",fg="#ffa500",text=texto("aceptar"), font=("Px437 Acer VGA 8x8",12),
+                         relief="flat",activebackground="#ffa500")
+    boton_aceptar.pack()
+    borde_aceptar.grid(row=0,column=0,padx=50)
+    
+    
+    borde_cancelar=crear_borde(popup["superbot"],"#ffa500",2,2)
+    Cancelar=tk.Button(borde_cancelar, bg="black",fg="#ffa500",text=texto("cancelar"), font=("Px437 Acer VGA 8x8",12),
+                             relief="flat",activebackground="#ffa500")
+    Cancelar.clave_idioma="cancelar"
+    Cancelar.pack()
+    borde_cancelar.grid(row=0,column=1)
+    
+    return{"boton_aceptar":boton_aceptar,"borde":popup["borde"],"cancelar":Cancelar,"x":popup["x"]}
+    
+
+
 #/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #===================================DESTRUYE TODOS LOS POPUPS==============================================================
-def destruir_popups(P_carpetas):
+def destruir_popups(P_carpetas,Salir):
     popup = P_carpetas["popup"]
 
     if popup is not None:
         popup.destroy()
 
         P_carpetas["popup_boton"].config(state="normal")
+        Salir.config(state="normal")
 
         P_carpetas["popup"] = None
         P_carpetas["popup_boton"] = None
@@ -767,7 +871,7 @@ def destruir_popups(P_carpetas):
 
 
 #CREA UN SEPARADOR QUE PUEDES COLOCAR COMO UN WIDGET, SE PUEDE ELEGIR LA LINEA PERO NO CREO QUE FUNCIONE EN VERTICAL.
-def crear_separador(frame,linea="=",orientacion="h"):
+def crear_separador(color,frame,linea="=",orientacion="h"):
     
      if orientacion == "h":
         canvas = tk.Canvas(frame,height=10,bg="black", highlightthickness=0,bd=0)
@@ -775,7 +879,7 @@ def crear_separador(frame,linea="=",orientacion="h"):
             canvas.delete("all")
             ancho=event.width
             cantidad=ancho//9 +2
-            canvas.create_text(0,5,anchor="w",text=linea*cantidad,font=("Courier New",15),fill="orange")
+            canvas.create_text(0,5,anchor="w",text=linea*cantidad,font=("Courier New",15),fill=color)
         canvas.bind("<Configure>",redibujar)
         return canvas
      else:
