@@ -1,0 +1,64 @@
+{
+    "titulo": "Arca",
+
+    "idioma": "Idioma>",
+    
+    "maestra": "-Establece una clave maestra para acceder-",
+
+    "clave": "Clave",
+    "clave:": "Clave:",
+
+    "clave_incorrecta": "Clave Incorrecta",
+
+    "crear_carpeta": "Crear Carpeta",
+
+    "nombre": "Nombre",
+    "nombre:": "Nombre:",
+
+    "abrir": "Abrir",
+
+    "renombrar": "Renombrar",
+    "renombrar:": "Renombrar:",
+
+    "eliminar": "Eliminar",
+
+    "bloquear": "Bloquear",
+
+    "bienvenido": "-Bienvenido, seleccione una carpeta-",
+    
+    "bienvenido_sin_carpeta": "-Bienvenido, usa + para crear una carpeta-",
+
+    "mensaje_maestra": "-Establece una clave maestra para acceder-",
+
+    "aviso_carpeta_desbloqueada": "AVISO HAY 1 CARPETA DESBLOQUEADA",
+
+    "aviso_carpetas_desbloqueadas": "AVISO HAY {cantidad} CARPETAS DESBLOQUEADAS",
+
+    "seguro_eliminar": "¿Seguro que desea eliminar la carpeta?",
+
+    "aceptar": "Aceptar",
+
+    "cancelar": "Cancelar",
+
+    "popup_eliminar": "Eliminar//",
+
+    "popup_renombrar": "Renombrar//",
+
+    "popup_nueva_carpeta": "Nueva Carpeta//"
+
+
+
+    
+
+     
+
+
+
+
+
+
+
+
+
+
+}
